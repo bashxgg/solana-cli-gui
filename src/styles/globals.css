@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/*
+  Direction: industrial workstation
+  Dense, cool-gray, system type, one steel-blue accent.
+  Flat panels, functional borders — not card-marketing chrome.
+*/
+
+@theme {
+  --color-surface-0: #0e1014;
+  --color-surface-1: #14171d;
+  --color-surface-2: #1b1f27;
+  --color-surface-3: #252a33;
+  --color-border: #2a303a;
+  --color-border-strong: #3a424e;
+  --color-fg: #d7dbe2;
+  --color-fg-muted: #8b93a0;
+  --color-fg-dim: #5c6470;
+  --color-accent: #4d8fd9;
+  --color-accent-soft: #4d8fd922;
+  --color-ok: #6fbf8a;
+  --color-ok-soft: #6fbf8a18;
+  --color-warn: #c9a227;
+  --color-warn-soft: #c9a22718;
+  --color-danger: #d35f5f;
+  --color-danger-soft: #d35f5f18;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-surface-0);
+  color: var(--color-fg);
+  font-size: 12.5px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 0;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  font-size: 0.95em;
+}
+
+.field {
+  width: 100%;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-0);
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.field:hover:not(:disabled):not(:focus) {
+  border-color: var(--color-border-strong);
+}
+.field:focus {
+  border-color: var(--color-accent);
+  outline: none;
+  background: #0c0e12;
+}
+
+.btn-primary,
+.btn-ghost,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 2px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.btn-primary {
+  border: 1px solid #3a7bc0;
+  background: #2f6db3;
+  color: #f2f6fb;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #3a7bc0;
+}
+.btn-ghost {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-fg-muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  border-color: var(--color-border-strong);
+  color: var(--color-fg);
+}
+.btn-danger {
+  border: 1px solid #a84848;
+  background: #8f3f3f;
+  color: #f8ecec;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #a84848;
+}
+.btn-primary:disabled,
+.btn-ghost:disabled,
+.btn-danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Grey disabled "installed" state for overview tool rows */
+.btn-install-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 2px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-fg-dim);
+  cursor: default;
+  opacity: 1;
+}
+.btn-install-done:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+/* Quiet section label — not shouty uppercase tracking */
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-fg-dim);
+}
+
+.panel {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  background: var(--color-surface-1);
+}

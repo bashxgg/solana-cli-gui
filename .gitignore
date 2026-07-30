@@ -1,0 +1,55 @@
+# Dependencies & package managers
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun-debug.log*
+lerna-debug.log*
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Frontend env (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+src-tauri/WixTools/
+
+# Accidental keypair / grind output in project cwd (CRITICAL — never commit)
+*.keypair.json
+id.json
+**/id.json
+src-tauri/[1-9A-HJ-NP-Za-km-z]*.json
+!src-tauri/tauri.conf.json
+!src-tauri/capabilities/**/*.json
+
+# Local icon work product (regenerate with: bun run tauri icon app-icon-source.png)
+# Keep app-icon-source.png if you want contributors to regenerate icons from source.
+# Uncomment to exclude:
+# app-icon-source.png
