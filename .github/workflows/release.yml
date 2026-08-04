@@ -68,8 +68,9 @@ jobs:
             **Requires** `solana`, `solana-keygen`, and `spl-token` installed separately on your machine.
 
             ### Install notes
-            - **macOS (unsigned):** open the `.dmg`, drag the app to Applications. If Gatekeeper blocks it: right-click → Open.
-            - **Windows (unsigned):** run the installer; SmartScreen may warn — choose More info → Run anyway.
+            - **macOS (unsigned):** open the `.dmg`, drag to Applications. If macOS says the app is "damaged", run:
+              `xattr -cr "/Applications/solana cli.app"` then open again.
+            - **Windows (unsigned):** run the installer; SmartScreen may warn — More info → Run anyway.
             - Install Solana CLI: https://docs.solana.com/cli/install-solana-cli-tools
           releaseDraft: false
           prerelease: false

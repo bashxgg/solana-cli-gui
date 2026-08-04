@@ -22,7 +22,13 @@ Prebuilt **macOS** and **Windows** apps are on **[GitHub Releases](https://githu
 
 You still need the **Solana CLI** on your `PATH` (`solana`, `solana-keygen`, `spl-token`). This app does not bundle those tools.
 
-**macOS (unsigned builds):** open the DMG → drag to Applications. If Gatekeeper blocks it: right-click the app → **Open**.
+**macOS (unsigned builds):** open the DMG → drag to Applications. macOS often shows *“solana cli is damaged”* for **unsigned** apps from the internet — the file is fine. Fix in Terminal:
+
+```bash
+xattr -cr "/Applications/solana cli.app"
+```
+
+Then open the app normally (or right-click → **Open**). Proper fix later is Apple code signing + notarization.
 
 **Windows (unsigned builds):** run the installer. If SmartScreen appears: **More info** → **Run anyway**.
 
