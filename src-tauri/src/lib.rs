@@ -1,10 +1,14 @@
+mod app_config;
 mod cli;
+mod keypair_convert;
 
+use app_config::{load_app_config, save_app_config, AppConfigDto, AppConfigResult};
 use cli::{
     allowed_binaries, get_status, is_stream_running, launch_install, launch_soltop, probe_soltop,
     run_cli, start_cli_stream, stop_cli_stream, AppStatus, BinaryInfo, CommandResult,
     RunCliRequest, SoltopLaunchRequest, SoltopLaunchResult, StreamHandle,
 };
+use keypair_convert::{base58_to_json, json_to_base58, KeyConvertResult};
 use std::sync::Arc;
 
 #[tauri::command]
@@ -69,6 +73,26 @@ fn launch_install_cmd(tool: String) -> Result<String, String> {
     launch_install(&tool)
 }
 
+#[tauri::command]
+fn load_gui_config() -> Result<AppConfigResult, String> {
+    load_app_config()
+}
+
+#[tauri::command]
+fn save_gui_config(config: AppConfigDto) -> Result<AppConfigResult, String> {
+    save_app_config(config)
+}
+
+#[tauri::command]
+fn convert_base58_to_json(base58_key: String) -> Result<KeyConvertResult, String> {
+    base58_to_json(&base58_key)
+}
+
+#[tauri::command]
+fn convert_json_to_base58(json_array: String) -> Result<KeyConvertResult, String> {
+    json_to_base58(&json_array)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let stream_handle = Arc::new(StreamHandle::new());
@@ -85,7 +109,11 @@ pub fn run() {
             is_cli_stream_running,
             get_soltop_status,
             launch_soltop_cmd,
-            launch_install_cmd
+            launch_install_cmd,
+            load_gui_config,
+            save_gui_config,
+            convert_base58_to_json,
+            convert_json_to_base58
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

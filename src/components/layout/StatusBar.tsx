@@ -1,7 +1,8 @@
 import type { AppStatus } from "../../lib/types";
 import type { SolscanCluster } from "../../lib/solscan";
-import { isMainnetUrl, shorten } from "../../lib/run";
+import { formatBalance, isMainnetUrl, shortCliVersion, shorten } from "../../lib/run";
 import { SolscanLink } from "../SolscanLink";
+import { useApp } from "../../lib/context";
 
 export function StatusBar({
   status,
@@ -14,46 +15,37 @@ export function StatusBar({
   overrideUrl: string;
   cluster: SolscanCluster;
 }) {
+  const { overrides } = useApp();
   const solana = status?.binaries.find((b) => b.name === "solana");
   const address = status?.address?.stdout?.trim() ?? "";
-  const balanceRaw = status?.balance?.stdout?.trim() ?? "";
-  let balance = "—";
-  try {
-    const j = JSON.parse(balanceRaw);
-    balance =
-      typeof j === "object" && j !== null && "value" in j
-        ? `${j.value} SOL`
-        : balanceRaw || "—";
-  } catch {
-    balance = balanceRaw.split("\n")[0] || "—";
-  }
+  const balance = formatBalance(status?.balance?.stdout);
 
   const configText = status?.config?.stdout ?? "";
   const urlMatch = configText.match(/RPC URL:\s*(.+)/i);
-  const commitmentMatch = configText.match(/Commitment:\s*(.+)/i);
-  const clusterLabel = overrideUrl || urlMatch?.[1]?.trim() || "—";
-  const commitment = commitmentMatch?.[1]?.trim() || "—";
-  const mainnet = isMainnetUrl(clusterLabel);
+  const clusterLabel = overrideUrl.trim() || urlMatch?.[1]?.trim() || "—";
+  const commitment =
+    overrides.commitment?.trim() ||
+    configText.match(/Commitment:\s*(.+)/i)?.[1]?.trim() ||
+    "confirmed";
+
+  const hasCustomRpc = overrideUrl.trim().length > 0;
+  const mainnetDefault = !hasCustomRpc && isMainnetUrl(clusterLabel);
+  const rpcClass = hasCustomRpc
+    ? "text-ok"
+    : mainnetDefault
+      ? "text-danger"
+      : "text-fg-muted";
 
   return (
     <footer className="flex h-6 shrink-0 items-center gap-0 border-t border-border bg-surface-1 mono text-[11px] text-fg-dim">
       <span
-        className={["px-2", running ? "bg-warn-soft text-warn" : "text-ok"].join(" ")}
+        className={["px-2", running ? "text-warn" : ""].join(" ")}
+        title={solana?.version ?? undefined}
       >
-        {running ? "RUN" : "OK"}
+        {solana?.found ? shortCliVersion(solana.version) : "no cli"}
       </span>
       <Sep />
-      <span className="max-w-[200px] truncate px-2" title={solana?.version ?? undefined}>
-        {solana?.found ? solana.version ?? "solana" : "cli missing"}
-      </span>
-      <Sep />
-      <span
-        className={[
-          "max-w-[220px] truncate px-2",
-          mainnet ? "bg-danger-soft text-danger" : "",
-        ].join(" ")}
-        title={clusterLabel}
-      >
+      <span className={["max-w-[200px] truncate px-2", rpcClass].join(" ")} title={clusterLabel}>
         {clusterLabel}
       </span>
       <Sep />
@@ -69,7 +61,7 @@ export function StatusBar({
       <Sep />
       <span className="px-2 text-fg-muted">{balance}</span>
       <Sep />
-      <span className="px-2">{commitment}</span>
+      <span className="px-2 text-ok">{commitment}</span>
     </footer>
   );
 }

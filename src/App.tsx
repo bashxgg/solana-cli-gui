@@ -6,16 +6,18 @@ import { resolveCluster } from "./lib/solscan";
 import { Sidebar } from "./components/layout/Sidebar";
 import { StatusBar } from "./components/layout/StatusBar";
 import { OutputPanel } from "./components/layout/OutputPanel";
-import { GlobalOverridesBar } from "./components/layout/GlobalOverrides";
+import { TopBar } from "./components/layout/TopBar";
 import { Dashboard } from "./components/pages/Dashboard";
 import { CatalogPage } from "./components/pages/CatalogPage";
 import { ConsolePage } from "./components/pages/Console";
 import { WalletPage } from "./components/pages/Wallet";
 import { SoltopPage } from "./components/pages/Soltop";
+import { ReclaimPage } from "./components/pages/Reclaim";
 import "./styles/globals.css";
 
 function Shell() {
-  const { page, setPage, overrides, setOverrides, lastResult, running } = useApp();
+  const { page, setPage, overrides, setOverrides, lastResult, running, configReady } =
+    useApp();
   const [status, setStatus] = useState<AppStatus | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(false);
 
@@ -63,34 +65,40 @@ function Shell() {
   }, [statusKey]);
 
   useEffect(() => {
+    if (!configReady) return;
     void refreshStatus();
-  }, [refreshStatus]);
+  }, [refreshStatus, configReady]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <TopBar
+        overrides={overrides}
+        onOverridesChange={setOverrides}
+        result={lastResult}
+        cluster={cluster}
+      />
       <div className="flex min-h-0 flex-1">
         <Sidebar page={page} onNavigate={setPage} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <GlobalOverridesBar value={overrides} onChange={setOverrides} />
-          <main className="min-h-0 flex-1 overflow-y-auto p-3">
-            {page === "dashboard" ? (
-              <Dashboard
-                status={status}
-                onRefresh={() => void refreshStatus()}
-                loading={loadingStatus}
-                cluster={cluster}
-              />
-            ) : page === "console" ? (
-              <ConsolePage />
-            ) : page === "wallet" ? (
-              <WalletPage />
-            ) : page === "soltop" ? (
-              <SoltopPage />
-            ) : (
-              <CatalogPage page={page} />
-            )}
-          </main>
-        </div>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-3">
+          {page === "dashboard" ? (
+            <Dashboard
+              status={status}
+              onRefresh={() => void refreshStatus()}
+              loading={loadingStatus}
+              cluster={cluster}
+            />
+          ) : page === "console" ? (
+            <ConsolePage />
+          ) : page === "wallet" ? (
+            <WalletPage />
+          ) : page === "soltop" ? (
+            <SoltopPage />
+          ) : page === "reclaim" ? (
+            <ReclaimPage />
+          ) : (
+            <CatalogPage page={page} />
+          )}
+        </main>
         <OutputPanel result={lastResult} cluster={cluster} />
       </div>
       <StatusBar

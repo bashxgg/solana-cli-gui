@@ -4,6 +4,7 @@ import type {
   BinaryInfo,
   CommandResult,
   GlobalOverrides,
+  GuiConfigFile,
   RunCliRequest,
   SoltopLaunchRequest,
   SoltopLaunchResult,
@@ -48,10 +49,6 @@ export async function stopCliStream(): Promise<void> {
   return invoke("stop_cli_stream_cmd");
 }
 
-export async function isCliStreamRunning(): Promise<boolean> {
-  return invoke<boolean>("is_cli_stream_running");
-}
-
 export async function getSoltopStatus(): Promise<BinaryInfo> {
   return invoke<BinaryInfo>("get_soltop_status");
 }
@@ -64,4 +61,28 @@ export async function launchSoltop(
 
 export async function launchInstall(tool: string): Promise<string> {
   return invoke<string>("launch_install_cmd", { tool });
+}
+
+export async function loadGuiConfig(): Promise<GuiConfigFile> {
+  return invoke<GuiConfigFile>("load_gui_config");
+}
+
+export async function saveGuiConfig(config: GlobalOverrides): Promise<GuiConfigFile> {
+  return invoke<GuiConfigFile>("save_gui_config", { config });
+}
+
+export interface KeyConvertResult {
+  base58: string;
+  jsonArray: string;
+  publicKey: string;
+  byteLength: number;
+  note: string;
+}
+
+export async function convertBase58ToJson(base58Key: string): Promise<KeyConvertResult> {
+  return invoke<KeyConvertResult>("convert_base58_to_json", { base58Key });
+}
+
+export async function convertJsonToBase58(jsonArray: string): Promise<KeyConvertResult> {
+  return invoke<KeyConvertResult>("convert_json_to_base58", { jsonArray });
 }

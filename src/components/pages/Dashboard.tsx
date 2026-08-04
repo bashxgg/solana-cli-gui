@@ -1,43 +1,36 @@
 import { useState } from "react";
-import type { AppStatus, BinaryInfo } from "../../lib/types";
+import type { AppStatus, BinaryInfo, PageId } from "../../lib/types";
 import type { SolscanCluster } from "../../lib/solscan";
-import { shorten, tryFormatJson } from "../../lib/run";
+import { formatBalance, shorten, tryFormatJson } from "../../lib/run";
 import { useApp } from "../../lib/context";
 import { launchInstall } from "../../lib/tauri";
 import { LinkifiedText, SolscanLink } from "../SolscanLink";
 
-function formatBalance(stdout: string | undefined): string {
-  if (!stdout?.trim()) return "—";
-  const raw = stdout.trim();
-  try {
-    const j = JSON.parse(raw);
-    if (typeof j === "object" && j !== null) {
-      if ("value" in j && typeof (j as { value: unknown }).value === "number") {
-        return `${(j as { value: number }).value} SOL`;
-      }
-      // solana balance --output json sometimes: { "lamports": n }
-      if ("lamports" in j && typeof (j as { lamports: unknown }).lamports === "number") {
-        const lamports = (j as { lamports: number }).lamports;
-        return `${lamports / 1e9} SOL (${lamports} lamports)`;
-      }
-    }
-  } catch {
-    /* plain text */
-  }
-  return raw.split("\n")[0];
-}
-
-function binaryLabel(b: BinaryInfo | undefined): {
-  text: string;
-  missing: boolean;
-} {
+/** Full version line for overview — keep detail visible, not abbreviated. */
+function binaryLabel(b: BinaryInfo | undefined): { text: string; missing: boolean } {
   if (!b?.found) return { text: "not installed", missing: true };
   const v = b.version?.trim() ?? "";
-  if (!v || v.toLowerCase().includes("error") || v.toLowerCase().includes("unexpected")) {
-    return { text: "installed", missing: false };
+  if (!v || /error|unexpected/i.test(v)) {
+    return { text: "installed (no --version)", missing: false };
   }
+  if (/^installed/i.test(v)) return { text: v, missing: false };
   return { text: v, missing: false };
 }
+
+const TOOLS: { name: string; install: string }[] = [
+  { name: "solana", install: "solana" },
+  { name: "solana-keygen", install: "solana-keygen" },
+  { name: "spl-token", install: "spl-token" },
+  { name: "soltop", install: "soltop" },
+];
+
+const JUMPS: { id: PageId; label: string }[] = [
+  { id: "config", label: "config" },
+  { id: "wallet", label: "wallet" },
+  { id: "transfer", label: "transfer" },
+  { id: "soltop", label: "soltop" },
+  { id: "console", label: "console" },
+];
 
 export function Dashboard({
   status,
@@ -52,64 +45,30 @@ export function Dashboard({
 }) {
   const { setPage } = useApp();
   const [installing, setInstalling] = useState<string | null>(null);
-  const [installMsg, setInstallMsg] = useState<string | null>(null);
-  const [installErr, setInstallErr] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
 
   const addressRaw = status?.address?.stdout?.trim() ?? "";
   const balance = formatBalance(status?.balance?.stdout);
 
-  const tools: { name: string; info: BinaryInfo | undefined; installTool: string }[] = [
-    {
-      name: "solana",
-      info: status?.binaries.find((b) => b.name === "solana"),
-      installTool: "solana",
-    },
-    {
-      name: "solana-keygen",
-      info: status?.binaries.find((b) => b.name === "solana-keygen"),
-      installTool: "solana-keygen",
-    },
-    {
-      name: "spl-token",
-      info: status?.binaries.find((b) => b.name === "spl-token"),
-      installTool: "spl-token",
-    },
-    {
-      name: "soltop",
-      info: status?.binaries.find((b) => b.name === "soltop"),
-      installTool: "soltop",
-    },
-  ];
-
   async function onInstall(tool: string) {
-    setInstallErr(null);
-    setInstallMsg(null);
+    setMsg(null);
     setInstalling(tool);
     try {
-      const msg = await launchInstall(tool);
-      setInstallMsg(msg);
+      setMsg(await launchInstall(tool));
     } catch (e) {
-      setInstallErr(e instanceof Error ? e.message : String(e));
+      setMsg(e instanceof Error ? e.message : String(e));
     } finally {
       setInstalling(null);
     }
   }
 
   return (
-    <div className="space-y-5">
-      <header className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-[13px] font-medium text-fg">Overview</h1>
-          <p className="max-w-2xl text-[11px] leading-relaxed text-fg-muted">
-            Snapshot from your installed Solana tools: which binaries are found, your configured
-            wallet address and SOL balance, full CLI config, and current epoch. Addresses and
-            signatures link to Solscan ({cluster}). Missing tools show an install button (opens
-            Terminal).
-          </p>
-        </div>
+    <div className="space-y-4">
+      <header className="flex items-center justify-between gap-3">
+        <h1 className="text-[13px] font-medium text-fg">Overview</h1>
         <button
           type="button"
-          className="btn-ghost shrink-0"
+          className="btn-ghost"
           onClick={onRefresh}
           disabled={loading}
         >
@@ -118,29 +77,19 @@ export function Dashboard({
       </header>
 
       <dl className="panel divide-y divide-border">
-        <div className="grid grid-cols-[110px_1fr] gap-2 px-2.5 py-1.5 text-[12px]">
-          <dt className="text-fg-dim">address</dt>
-          <dd className="mono min-w-0 truncate text-fg" title={addressRaw || undefined}>
-            {addressRaw ? (
-              <SolscanLink id={addressRaw} cluster={cluster} kind="account">
-                {shorten(addressRaw, 8)}
-              </SolscanLink>
-            ) : (
-              "—"
-            )}
-            {addressRaw ? (
-              <span className="ml-2 text-[10px] text-fg-dim">solscan</span>
-            ) : null}
-          </dd>
-        </div>
-        <div className="grid grid-cols-[110px_1fr] gap-2 px-2.5 py-1.5 text-[12px]">
-          <dt className="text-fg-dim">balance</dt>
-          <dd className="mono min-w-0 truncate text-fg" title={balance}>
-            {balance}
-          </dd>
-        </div>
+        <Row label="address">
+          {addressRaw ? (
+            <SolscanLink id={addressRaw} cluster={cluster} kind="account">
+              {shorten(addressRaw, 8)}
+            </SolscanLink>
+          ) : (
+            "—"
+          )}
+        </Row>
+        <Row label="balance">{balance}</Row>
 
-        {tools.map(({ name, info, installTool }) => {
+        {TOOLS.map(({ name, install }) => {
+          const info = status?.binaries.find((b) => b.name === name);
           const { text, missing } = binaryLabel(info);
           return (
             <div
@@ -153,40 +102,32 @@ export function Dashboard({
                   "mono min-w-0 truncate",
                   missing ? "text-danger" : "text-fg",
                 ].join(" ")}
-                title={info?.path ?? text}
+                title={info?.path ? `${text} · ${info.path}` : text}
               >
                 {text}
                 {info?.found && info.path ? (
                   <span className="ml-2 text-[10px] text-fg-dim">{info.path}</span>
                 ) : null}
               </dd>
-              <dd className="flex shrink-0 items-center gap-1.5">
+              <dd className="flex shrink-0 gap-1">
                 <button
                   type="button"
-                  className={[
-                    "py-0.5 text-[11px]",
-                    missing ? "btn-primary" : "btn-install-done",
-                  ].join(" ")}
-                  disabled={!missing || installing !== null}
-                  title={
+                  className={
                     missing
-                      ? installTool === "soltop"
-                        ? "cargo install soltop from GitHub (opens Terminal)"
-                        : "Install Solana CLI via official Agave installer (opens Terminal)"
-                      : "Already installed"
+                      ? "btn-primary py-0.5 text-[11px]"
+                      : "btn-install-done py-0.5 text-[11px]"
                   }
-                  onClick={() => {
-                    if (missing) void onInstall(installTool);
-                  }}
+                  disabled={!missing || installing !== null}
+                  title={info?.path ?? (missing ? "Install" : "Installed")}
+                  onClick={() => missing && void onInstall(install)}
                 >
-                  {installing === installTool ? "…" : missing ? "install" : "installed"}
+                  {installing === install ? "…" : missing ? "install" : "installed"}
                 </button>
                 {!missing && name === "soltop" ? (
                   <button
                     type="button"
                     className="btn-ghost py-0.5 text-[11px]"
                     onClick={() => setPage("soltop")}
-                    title="Open soltop launcher"
                   >
                     open
                   </button>
@@ -197,12 +138,7 @@ export function Dashboard({
         })}
       </dl>
 
-      {installMsg ? (
-        <p className="mono text-[11px] text-ok">{installMsg}</p>
-      ) : null}
-      {installErr ? (
-        <p className="mono text-[11px] text-danger">{installErr}</p>
-      ) : null}
+      {msg ? <p className="mono text-[11px] text-fg-muted">{msg}</p> : null}
 
       <div className="grid gap-3 lg:grid-cols-2">
         <section className="panel min-h-0">
@@ -211,7 +147,7 @@ export function Dashboard({
             {status?.config?.stdout?.trim() ? (
               <LinkifiedText text={status.config.stdout.trim()} cluster={cluster} />
             ) : (
-              "no output — is solana on PATH?"
+              "—"
             )}
           </pre>
         </section>
@@ -232,15 +168,7 @@ export function Dashboard({
 
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
         <span className="text-fg-dim">jump</span>
-        {(
-          [
-            ["config", "config"],
-            ["wallet", "wallet"],
-            ["transfer", "transfer"],
-            ["soltop", "soltop"],
-            ["console", "console"],
-          ] as const
-        ).map(([id, label]) => (
+        {JUMPS.map(({ id, label }) => (
           <button
             key={id}
             type="button"
@@ -251,6 +179,15 @@ export function Dashboard({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-[110px_1fr] gap-2 px-2.5 py-1.5 text-[12px]">
+      <dt className="text-fg-dim">{label}</dt>
+      <dd className="mono min-w-0 truncate text-fg">{children}</dd>
     </div>
   );
 }

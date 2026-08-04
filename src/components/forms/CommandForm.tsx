@@ -127,7 +127,13 @@ export function CommandForm({ cmd }: { cmd: CatalogCommand }) {
         <div className="border-t border-border px-2.5 py-2">
           <div className="mb-2 grid gap-2.5 sm:grid-cols-2">
             {cmd.fields.map((f) => (
-              <label key={f.name} className="flex flex-col gap-0.5">
+              <label
+                key={f.name}
+                className={[
+                  "flex flex-col gap-0.5",
+                  f.type === "textarea" ? "sm:col-span-2" : "",
+                ].join(" ")}
+              >
                 <span className="text-[11px] text-fg-dim">
                   {f.label}
                   {f.required ? <span className="text-danger"> *</span> : null}
@@ -158,7 +164,7 @@ export function CommandForm({ cmd }: { cmd: CatalogCommand }) {
                   </select>
                 ) : f.type === "textarea" ? (
                   <textarea
-                    className="field mono min-h-14"
+                    className="field mono min-h-14 sm:col-span-2"
                     placeholder={f.placeholder}
                     value={String(values[f.name] ?? "")}
                     onChange={(e) =>

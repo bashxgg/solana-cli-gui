@@ -129,17 +129,11 @@ export function VanityPage() {
 
   return (
     <div className="space-y-3">
-      <header className="space-y-1">
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-[13px] font-medium text-fg">Vanity</h2>
-          <span className="text-[11px] text-fg-dim">solana-keygen grind</span>
-        </div>
-        <p className="max-w-3xl text-[11px] leading-relaxed text-fg-muted">
-          Brute-force generate keypairs until the public address matches a Base58 prefix and/or
-          suffix you choose (e.g. starts with SoL). Longer patterns take exponentially longer —
-          3–4 characters is practical; 5+ can take hours or days. By default keypair files are
-          written into the app working directory; enable no-outfile to only print results.
-        </p>
+      <header className="flex items-baseline gap-2">
+        <h2 className="text-[13px] font-medium text-fg">Vanity</h2>
+        <span className="text-[11px] text-fg-dim">
+          solana-keygen grind · 3–4 chars practical
+        </span>
       </header>
 
       <div className="grid gap-px border border-border bg-border lg:grid-cols-2">

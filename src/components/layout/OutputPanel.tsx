@@ -4,7 +4,8 @@ import type { SolscanCluster } from "../../lib/solscan";
 import { tryFormatJson } from "../../lib/run";
 import { LinkifiedText } from "../SolscanLink";
 
-export function OutputPanel({
+/** Status + actions for the shared top bar (right segment). */
+export function OutputToolbar({
   result,
   cluster,
 }: {
@@ -15,12 +16,9 @@ export function OutputPanel({
 
   if (!result) {
     return (
-      <aside className="flex w-[340px] shrink-0 flex-col border-l border-border bg-surface-0">
-        <div className="panel-head">output</div>
-        <div className="flex flex-1 items-start p-3 mono text-[11px] text-fg-dim">
-          // no command yet
-        </div>
-      </aside>
+      <div className="flex w-full items-center text-[12px] font-medium text-fg-muted">
+        output
+      </div>
     );
   }
 
@@ -37,35 +35,61 @@ export function OutputPanel({
   }
 
   return (
-    <aside className="flex w-[340px] shrink-0 flex-col border-l border-border bg-surface-0">
-      <div className="panel-head">
-        <div className="flex items-center gap-2">
-          <span>output</span>
-          <span className={["mono text-[11px]", ok ? "text-ok" : "text-danger"].join(" ")}>
-            {result.exitCode}
-          </span>
-          <span className="mono text-[11px] text-fg-dim">{result.durationMs}ms</span>
-          <span className="mono text-[10px] text-fg-dim" title="Solscan cluster for links">
-            solscan:{cluster}
-          </span>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="text-[11px] text-fg-dim hover:text-fg"
-            onClick={() => void copy("cmd")}
-          >
-            {copied === "cmd" ? "copied" : "cmd"}
-          </button>
-          <button
-            type="button"
-            className="text-[11px] text-fg-dim hover:text-fg"
-            onClick={() => void copy("out")}
-          >
-            {copied === "out" ? "copied" : "copy"}
-          </button>
-        </div>
+    <div className="flex w-full items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2 text-[12px]">
+        <span className="font-medium text-fg-muted">output</span>
+        <span className={["mono text-[11px]", ok ? "text-ok" : "text-danger"].join(" ")}>
+          {result.exitCode}
+        </span>
+        <span className="mono text-[11px] text-fg-dim">{result.durationMs}ms</span>
+        <span className="mono truncate text-[10px] text-fg-dim" title="Solscan cluster for links">
+          solscan:{cluster}
+        </span>
       </div>
+      <div className="flex shrink-0 gap-2">
+        <button
+          type="button"
+          className="text-[11px] text-fg-dim hover:text-fg"
+          onClick={() => void copy("cmd")}
+        >
+          {copied === "cmd" ? "copied" : "cmd"}
+        </button>
+        <button
+          type="button"
+          className="text-[11px] text-fg-dim hover:text-fg"
+          onClick={() => void copy("out")}
+        >
+          {copied === "out" ? "copied" : "copy"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Body-only output column (header lives in TopBar). */
+export function OutputPanel({
+  result,
+  cluster,
+}: {
+  result: CommandResult | null;
+  cluster: SolscanCluster;
+}) {
+  if (!result) {
+    return (
+      <aside className="flex w-[340px] shrink-0 flex-col border-l border-border bg-surface-0">
+        <div className="flex flex-1 items-start p-3 mono text-[11px] text-fg-dim">
+          // no command yet
+        </div>
+      </aside>
+    );
+  }
+
+  const body = result.stdout.trim()
+    ? tryFormatJson(result.stdout)
+    : result.stderr.trim() || "(empty)";
+
+  return (
+    <aside className="flex w-[340px] shrink-0 flex-col border-l border-border bg-surface-0">
       <div className="border-b border-border px-2 py-1.5">
         <pre className="mono max-h-14 overflow-auto whitespace-pre-wrap break-all text-[10px] leading-snug text-fg-dim">
           <LinkifiedText text={result.commandPreview} cluster={cluster} />

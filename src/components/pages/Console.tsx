@@ -88,16 +88,9 @@ export function ConsolePage() {
 
   return (
     <div className="space-y-4">
-      <header className="space-y-1">
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-[13px] font-medium text-fg">Console</h1>
-          <span className="text-[11px] text-fg-dim">raw CLI escape hatch</span>
-        </div>
-        <p className="max-w-3xl text-[11px] leading-relaxed text-fg-muted">
-          Run any subcommand of solana, solana-keygen, or spl-token by typing arguments only (the
-          binary is chosen in the dropdown). Same safety rules as the forms: dangerous patterns
-          ask for confirm. Use this when a form is missing flags or you already know the CLI.
-        </p>
+      <header className="flex items-baseline gap-2">
+        <h1 className="text-[13px] font-medium text-fg">Console</h1>
+        <span className="text-[11px] text-fg-dim">raw CLI · args only</span>
       </header>
 
       <form onSubmit={onSubmit} className="panel p-2.5">

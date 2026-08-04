@@ -39,6 +39,7 @@ export interface AppStatus {
 }
 
 export interface GlobalOverrides {
+  /** Path to Solana CLI config.yml (-C), not the GUI config.toml */
   configPath: string;
   url: string;
   keypair: string;
@@ -49,16 +50,26 @@ export interface GlobalOverrides {
   json: boolean;
 }
 
+/** Loaded/saved GUI settings (~/.config/solana-cli-gui/config.toml) */
+export interface GuiConfigFile {
+  path: string;
+  config: GlobalOverrides;
+}
+
 export type PageId =
   | "dashboard"
   | "config"
   | "wallet"
   | "accounts"
   | "transfer"
+  | "nonce"
   | "stake"
   | "vote"
   | "program"
   | "tokens"
+  | "wrap"
+  | "alt"
+  | "reclaim"
   | "cluster"
   | "soltop"
   | "console";

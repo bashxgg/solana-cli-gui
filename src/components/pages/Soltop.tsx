@@ -4,8 +4,7 @@ import { useApp } from "../../lib/context";
 import { getSoltopStatus, launchSoltop } from "../../lib/tauri";
 import type { BinaryInfo } from "../../lib/types";
 
-const REPO = "https://github.com/soltop-app/soltop-oss";
-const INSTALL_GIT = "https://github.com/soltop-sh/soltop-oss";
+const REPO = "https://github.com/soltop-sh/soltop-oss";
 
 const MONIKER_RPC: Record<string, string> = {
   devnet: "https://api.devnet.solana.com",
@@ -89,21 +88,16 @@ export function SoltopPage() {
 
   return (
     <div className="space-y-4">
-      <header className="space-y-1">
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-[13px] font-medium text-fg">soltop</h1>
-          <span className="text-[11px] text-fg-dim">program monitor TUI</span>
-        </div>
-        <p className="max-w-3xl text-[11px] leading-relaxed text-fg-muted">
-          Launch{" "}
-          <button type="button" className="text-accent hover:underline" onClick={() => void openRepo()}>
-            soltop
-          </button>{" "}
-          (htop-style live Solana program stats: TPS, CU/sec, success rates) in your system
-          terminal. Full-screen TUI — we open Terminal and pass your RPC. Official prebuilt
-          releases are Linux-only; on macOS it works fine built from source (Rust). Source:{" "}
-          <span className="mono text-fg-dim">{REPO}</span>
-        </p>
+      <header className="flex items-baseline gap-2">
+        <h1 className="text-[13px] font-medium text-fg">Soltop</h1>
+        <span className="text-[11px] text-fg-dim">program TPS / CU TUI</span>
+        <button
+          type="button"
+          className="text-[11px] text-accent hover:underline"
+          onClick={() => void openRepo()}
+        >
+          github
+        </button>
       </header>
 
       <dl className="panel divide-y divide-border text-[12px]">
@@ -128,31 +122,15 @@ export function SoltopPage() {
       </dl>
 
       {!info?.found ? (
-        <section className="panel p-2.5 space-y-2 text-[12px]">
-          <div className="font-medium text-fg">Install soltop (macOS / source)</div>
-          <p className="text-[11px] text-fg-muted">
-            No official macOS binary yet — build from source (works on Mac with Rust 1.75+). Put
-            the binary on PATH so this app can find it (usually{" "}
-            <span className="mono">~/.cargo/bin</span>).
-          </p>
+        <section className="panel space-y-2 p-2.5 text-[12px]">
+          <div className="font-medium text-fg">Install (source → ~/.cargo/bin)</div>
           <pre className="mono overflow-x-auto bg-surface-0 p-2 text-[11px] text-fg-muted">
-{`# recommended: install into ~/.cargo/bin
-cargo install --git ${INSTALL_GIT}
-
-# or build in-repo:
-git clone ${INSTALL_GIT}.git
-cd soltop-oss && cargo build --release
-# then either:
-#   cp target/release/soltop ~/.cargo/bin/
-#   # or keep using ./target/release/soltop from a terminal
-
-# verify
-which soltop
-# if empty: export PATH="$HOME/.cargo/bin:$PATH"`}
+{`cargo install --git ${REPO}
+# PATH: export PATH="$HOME/.cargo/bin:$PATH"`}
           </pre>
           <div className="flex gap-2">
             <button type="button" className="btn-ghost" onClick={() => void openRepo()}>
-              open github
+              github
             </button>
             <button type="button" className="btn-ghost" onClick={() => void refresh()}>
               re-check
@@ -234,7 +212,7 @@ which soltop
       </form>
 
       <section className="panel">
-        <div className="panel-head">keys (inside soltop)</div>
+        <div className="panel-head">keys</div>
         <ul className="divide-y divide-border mono text-[11px] text-fg-muted">
           <li className="flex gap-3 px-2.5 py-1.5">
             <span className="w-6 text-fg">q</span>
@@ -242,15 +220,15 @@ which soltop
           </li>
           <li className="flex gap-3 px-2.5 py-1.5">
             <span className="w-6 text-fg">t</span>
-            <span>toggle program id truncation</span>
+            <span>truncate program ids</span>
           </li>
           <li className="flex gap-3 px-2.5 py-1.5">
             <span className="w-6 text-fg">u</span>
-            <span>toggle system program visibility</span>
+            <span>toggle system programs</span>
           </li>
           <li className="flex gap-3 px-2.5 py-1.5">
             <span className="w-6 text-fg">w</span>
-            <span>toggle live vs window aggregate stats</span>
+            <span>live vs window stats</span>
           </li>
         </ul>
       </section>

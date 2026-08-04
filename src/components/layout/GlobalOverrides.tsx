@@ -8,35 +8,26 @@ export function GlobalOverridesBar({
   onChange: (patch: Partial<Overrides>) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border bg-surface-1 px-3 py-1.5">
-      <Field
-        label="-u"
-        title="RPC URL override (devnet, mainnet-beta, or full https://… URL). Empty = use config.yml"
-      >
+    <div className="flex w-full items-center gap-x-3">
+      <Field label="-u" title="RPC URL (empty = config.yml)">
         <input
-          className="field mono w-[168px]"
+          className="field-toolbar mono w-[148px]"
           placeholder="url"
           value={value.url}
           onChange={(e) => onChange({ url: e.target.value })}
         />
       </Field>
-      <Field
-        label="-k"
-        title="Keypair file path override for signing. Empty = use config.yml keypair"
-      >
+      <Field label="-k" title="Keypair path (empty = config.yml)">
         <input
-          className="field mono w-[168px]"
+          className="field-toolbar mono w-[148px]"
           placeholder="keypair"
           value={value.keypair}
           onChange={(e) => onChange({ keypair: e.target.value })}
         />
       </Field>
-      <Field
-        label="commitment"
-        title="Commitment level: processed (fast) → confirmed (default) → finalized (safest)"
-      >
+      <Field label="commitment" title="processed · confirmed · finalized">
         <select
-          className="field w-[120px]"
+          className="field-toolbar w-[110px]"
           value={value.commitment || "confirmed"}
           onChange={(e) => onChange({ commitment: e.target.value })}
         >
@@ -45,35 +36,32 @@ export function GlobalOverridesBar({
           <option value="finalized">finalized</option>
         </select>
       </Field>
-      <Field
-        label="-C"
-        title="Path to a Solana CLI config.yml. Empty = ~/.config/solana/cli/config.yml"
-      >
+      <Field label="-C" title="CLI config.yml path">
         <input
-          className="field mono w-[140px]"
-          placeholder="config"
+          className="field-toolbar mono w-[120px]"
+          placeholder="cli config.yml"
           value={value.configPath}
           onChange={(e) => onChange({ configPath: e.target.value })}
         />
       </Field>
-      <div className="ml-auto flex items-center gap-3 text-[11px] text-fg-dim">
+      <div className="ml-auto flex shrink-0 items-center gap-3 text-[11px] text-fg-dim">
         <Toggle
           label="json"
           checked={value.json}
           onChange={(v) => onChange({ json: v })}
-          title="Add --output json on the next command so the CLI returns structured JSON when supported. Does not re-fetch the overview."
+          title="--output json on next command"
         />
         <Toggle
           label="verbose"
           checked={value.verbose}
           onChange={(v) => onChange({ verbose: v })}
-          title="Add -v for extra diagnostic logs on the next command. Does not re-fetch the overview."
+          title="-v on next command"
         />
         <Toggle
           label="skip-preflight"
           checked={value.skipPreflight}
           onChange={(v) => onChange({ skipPreflight: v })}
-          title="Add --skip-preflight on the next send: skip simulation before broadcast. Faster but riskier. Does not re-fetch the overview."
+          title="--skip-preflight on next send"
         />
       </div>
     </div>
@@ -90,7 +78,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex items-center gap-1.5" title={title}>
+    <label className="flex shrink-0 items-center gap-1.5" title={title}>
       <span className="mono shrink-0 text-[10px] text-fg-dim">{label}</span>
       {children}
     </label>
@@ -110,7 +98,7 @@ function Toggle({
 }) {
   return (
     <label
-      className="flex cursor-pointer items-center gap-1 select-none"
+      className="flex cursor-pointer select-none items-center gap-1"
       title={title}
     >
       <input

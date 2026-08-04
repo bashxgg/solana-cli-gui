@@ -381,6 +381,7 @@ export const CATALOG: CatalogCommand[] = [
     dangerous: true,
     page: "transfer",
   },
+  // ── Nonce accounts ──────────────────────────────────────
   {
     id: "create-nonce",
     binary: "solana",
@@ -407,10 +408,184 @@ export const CATALOG: CatalogCommand[] = [
         required: true,
         help: "SOL deposited into the nonce account (must cover rent + buffer).",
       },
+      {
+        name: "nonceAuthority",
+        label: "Nonce authority pubkey (optional)",
+        type: "pubkey",
+        flag: "--nonce-authority",
+        help: "Assign noncing authority to another pubkey. Empty = configured keypair.",
+      },
     ],
     requiresConfirm: true,
     dangerous: true,
-    page: "transfer",
+    page: "nonce",
+  },
+  {
+    id: "nonce-account",
+    binary: "solana",
+    label: "Show nonce account",
+    description:
+      "Display nonce account contents: balance, authority, and current durable nonce value. Read-only.",
+    subcommand: ["nonce-account"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+        help: "Pubkey or path to the nonce account keypair.",
+      },
+    ],
+    preferJson: true,
+    page: "nonce",
+  },
+  {
+    id: "nonce-value",
+    binary: "solana",
+    label: "Get nonce value",
+    description:
+      "Print only the current durable nonce (blockhash) stored in the account. Used when assembling a nonce transaction.",
+    subcommand: ["nonce"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+    ],
+    page: "nonce",
+  },
+  {
+    id: "new-nonce",
+    binary: "solana",
+    label: "Advance nonce",
+    description:
+      "Generate a new durable nonce, invalidating the previous one. Required after each successful nonce transaction (or to rotate).",
+    subcommand: ["new-nonce"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "nonceAuthority",
+        label: "Nonce authority keypair (optional)",
+        type: "path",
+        flag: "--nonce-authority",
+        help: "Signer with authority over the nonce. Empty = configured keypair.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "nonce",
+  },
+  {
+    id: "authorize-nonce",
+    binary: "solana",
+    label: "Authorize nonce account",
+    description:
+      "Assign nonce authority to a new pubkey. The new authority can advance the nonce and authorize withdrawals.",
+    subcommand: ["authorize-nonce-account"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "newAuthority",
+        label: "New authority pubkey",
+        type: "pubkey",
+        positional: true,
+        position: 1,
+        required: true,
+      },
+      {
+        name: "nonceAuthority",
+        label: "Current authority keypair (optional)",
+        type: "path",
+        flag: "--nonce-authority",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "nonce",
+  },
+  {
+    id: "withdraw-nonce",
+    binary: "solana",
+    label: "Withdraw from nonce account",
+    description:
+      "Withdraw SOL from a nonce account to a recipient. Leave enough for rent if you keep using the account.",
+    subcommand: ["withdraw-from-nonce-account"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "recipient",
+        label: "Recipient",
+        type: "pubkey",
+        positional: true,
+        position: 1,
+        required: true,
+      },
+      {
+        name: "amount",
+        label: "Amount (SOL)",
+        type: "amount",
+        positional: true,
+        position: 2,
+        required: true,
+      },
+      {
+        name: "nonceAuthority",
+        label: "Nonce authority keypair (optional)",
+        type: "path",
+        flag: "--nonce-authority",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "nonce",
+  },
+  {
+    id: "upgrade-nonce",
+    binary: "solana",
+    label: "Upgrade nonce account",
+    description:
+      "One-time upgrade of legacy nonce accounts so they sit outside the chain blockhash domain. Idempotent if already upgraded.",
+    subcommand: ["upgrade-nonce-account"],
+    fields: [
+      {
+        name: "address",
+        label: "Nonce account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "nonce",
   },
 
   // ── Stake ───────────────────────────────────────────────
@@ -817,13 +992,263 @@ export const CATALOG: CatalogCommand[] = [
     page: "cluster",
   },
 
+  // ── Address Lookup Tables ───────────────────────────────
+  {
+    id: "alt-create",
+    binary: "solana",
+    label: "Create lookup table",
+    description:
+      "Create a new Address Lookup Table (ALT). The table starts empty; use Extend to append account addresses. Authority defaults to your configured keypair. Pays rent for the table account.",
+    subcommand: ["address-lookup-table", "create"],
+    fields: [
+      {
+        name: "authority",
+        label: "Authority pubkey (optional)",
+        type: "pubkey",
+        flag: "--authority",
+        help: "Who can extend/freeze/deactivate/close. Empty = configured keypair pubkey.",
+      },
+      {
+        name: "payer",
+        label: "Payer path (optional)",
+        type: "path",
+        flag: "--payer",
+        help: "Signer that pays rent. Empty = configured keypair.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "alt",
+  },
+  {
+    id: "alt-get",
+    binary: "solana",
+    label: "Get lookup table",
+    description:
+      "Show an ALT: authority, deactivation slot, frozen state, and the list of stored addresses. Read-only.",
+    subcommand: ["address-lookup-table", "get"],
+    fields: [
+      {
+        name: "table",
+        label: "Lookup table address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+        help: "Public key of the lookup table account.",
+      },
+    ],
+    preferJson: true,
+    page: "alt",
+  },
+  {
+    id: "alt-extend",
+    binary: "solana",
+    label: "Extend lookup table",
+    description:
+      "Append one or more addresses to an existing ALT. Addresses are comma-separated. Only the table authority can extend (unless frozen).",
+    subcommand: ["address-lookup-table", "extend"],
+    fields: [
+      {
+        name: "table",
+        label: "Lookup table address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "addresses",
+        label: "Addresses to append",
+        type: "textarea",
+        flag: "--addresses",
+        required: true,
+        placeholder: "Addr1,Addr2,Addr3",
+        help: "Comma-separated base58 pubkeys (spaces/newlines are ok — cleaned to commas).",
+      },
+      {
+        name: "authority",
+        label: "Authority keypair path (optional)",
+        type: "path",
+        flag: "--authority",
+        help: "Signer for the authority. Empty = configured keypair.",
+      },
+      {
+        name: "payer",
+        label: "Payer path (optional)",
+        type: "path",
+        flag: "--payer",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "alt",
+  },
+  {
+    id: "alt-freeze",
+    binary: "solana",
+    label: "Freeze lookup table",
+    description:
+      "Permanently freeze an ALT so it can no longer be extended. Irreversible. Enable bypass-warning to skip the CLI interactive warning (needed for GUI).",
+    subcommand: ["address-lookup-table", "freeze"],
+    fields: [
+      {
+        name: "table",
+        label: "Lookup table address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "authority",
+        label: "Authority keypair path (optional)",
+        type: "path",
+        flag: "--authority",
+      },
+      {
+        name: "bypass",
+        label: "Bypass freeze warning",
+        type: "flag",
+        flag: "--bypass-warning",
+        defaultValue: true,
+        help: "Required for non-interactive runs.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "alt",
+  },
+  {
+    id: "alt-deactivate",
+    binary: "solana",
+    label: "Deactivate lookup table",
+    description:
+      "Start permanent deactivation. After a cooldown (~512 slots), the table can be closed and rent reclaimed. Cannot be used in new txs once deactivated.",
+    subcommand: ["address-lookup-table", "deactivate"],
+    fields: [
+      {
+        name: "table",
+        label: "Lookup table address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "authority",
+        label: "Authority keypair path (optional)",
+        type: "path",
+        flag: "--authority",
+      },
+      {
+        name: "bypass",
+        label: "Bypass deactivate warning",
+        type: "flag",
+        flag: "--bypass-warning",
+        defaultValue: true,
+        help: "Required for non-interactive runs.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "alt",
+  },
+  {
+    id: "alt-close",
+    binary: "solana",
+    label: "Close lookup table",
+    description:
+      "Permanently close a deactivated ALT after the cooldown and reclaim rent lamports to a recipient. Fails if the table is still active or cooldown is not finished.",
+    subcommand: ["address-lookup-table", "close"],
+    fields: [
+      {
+        name: "table",
+        label: "Lookup table address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "recipient",
+        label: "Recipient (optional)",
+        type: "pubkey",
+        flag: "--recipient",
+        help: "Where to send reclaimed rent. Empty = configured keypair address.",
+      },
+      {
+        name: "authority",
+        label: "Authority keypair path (optional)",
+        type: "path",
+        flag: "--authority",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "alt",
+  },
+
   // ── Tokens ──────────────────────────────────────────────
+  {
+    id: "spl-wrap",
+    binary: "spl-token",
+    label: "Wrap SOL",
+    description:
+      "Convert native SOL into wrapped SOL (WSOL) so it can be used as an SPL token (swaps, liquidity, etc.). Creates/funds your WSOL associated token account. Requires SOL for amount + fees/rent.",
+    subcommand: ["wrap"],
+    fields: [
+      {
+        name: "amount",
+        label: "Amount (SOL)",
+        type: "amount",
+        positional: true,
+        position: 0,
+        required: true,
+        placeholder: "1.0",
+        help: "How much native SOL to wrap into WSOL.",
+      },
+      {
+        name: "createAux",
+        label: "Create auxiliary account",
+        type: "flag",
+        flag: "--create-aux-account",
+        defaultValue: false,
+        help: "Use a separate aux token account instead of the associated token account (ATA).",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "wrap",
+  },
+  {
+    id: "spl-unwrap",
+    binary: "spl-token",
+    label: "Unwrap SOL",
+    description:
+      "Convert wrapped SOL (WSOL) back to native SOL and close the token account. Leave the account field empty to unwrap your default WSOL ATA. Native SOL is returned to the wallet.",
+    subcommand: ["unwrap"],
+    fields: [
+      {
+        name: "tokenAccount",
+        label: "WSOL token account (optional)",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        placeholder: "defaults to your WSOL ATA",
+        help: "Auxiliary WSOL account address. Empty = associated token account for the owner.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "wrap",
+  },
   {
     id: "spl-accounts",
     binary: "spl-token",
     label: "Token accounts",
     description:
-      "List SPL token accounts owned by a wallet: mint, balance, and account address for each token held.",
+      "List SPL token accounts owned by a wallet: mint, balance, and account address for each token held. Includes WSOL if you have wrapped SOL. Use Reclaim rent to close empties.",
     subcommand: ["accounts"],
     fields: [
       {
@@ -834,7 +1259,125 @@ export const CATALOG: CatalogCommand[] = [
         help: "Wallet that owns the token accounts. Empty = configured keypair.",
       },
     ],
+    preferJson: true,
     page: "tokens",
+  },
+  {
+    id: "spl-close",
+    binary: "spl-token",
+    label: "Close token account",
+    description:
+      "Close a single empty SPL token account and reclaim ~0.002 SOL rent. Account must have zero balance (burn first if needed). Like sol-incinerator for one account.",
+    subcommand: ["close"],
+    fields: [
+      {
+        name: "mint",
+        label: "Token mint (optional)",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        help: "Closes the associated token account for this mint. Prefer --address for a specific account.",
+      },
+      {
+        name: "address",
+        label: "Token account address",
+        type: "pubkey",
+        flag: "--address",
+        help: "Exact token account to close (overrides mint).",
+      },
+      {
+        name: "program2022",
+        label: "Token-2022",
+        type: "flag",
+        flag: "--program-2022",
+        defaultValue: false,
+        help: "Use Token Extensions program instead of classic SPL Token.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "reclaim",
+  },
+  {
+    id: "spl-gc-empty",
+    binary: "spl-token",
+    label: "Close all empty ATAs",
+    description:
+      "Run spl-token gc --close-empty-associated-accounts: bulk-close every empty associated token account owned by your wallet and reclaim rent. Closest CLI equivalent to sol-incinerator bulk claim.",
+    subcommand: ["gc"],
+    fields: [
+      {
+        name: "closeEmpty",
+        label: "Close empty associated accounts",
+        type: "flag",
+        flag: "--close-empty-associated-accounts",
+        defaultValue: true,
+        required: true,
+        help: "Must stay enabled for rent reclaim.",
+      },
+      {
+        name: "program2022",
+        label: "Token-2022",
+        type: "flag",
+        flag: "--program-2022",
+        defaultValue: false,
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "reclaim",
+  },
+  {
+    id: "spl-burn",
+    binary: "spl-token",
+    label: "Burn tokens",
+    description:
+      "Destroy tokens in an account (amount or ALL). After burning to zero, close the account to reclaim rent. Irreversible — do not burn valuable assets.",
+    subcommand: ["burn"],
+    fields: [
+      {
+        name: "tokenAccount",
+        label: "Token account address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+      {
+        name: "amount",
+        label: "Amount",
+        type: "amount",
+        positional: true,
+        position: 1,
+        required: true,
+        defaultValue: "ALL",
+        help: "Token amount or keyword ALL.",
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "reclaim",
+  },
+  {
+    id: "spl-close-mint",
+    binary: "spl-token",
+    label: "Close mint",
+    description:
+      "Close a token mint you control (supply must be zero). Reclaims mint account rent. Rare; only for mints you created and fully burned.",
+    subcommand: ["close-mint"],
+    fields: [
+      {
+        name: "mint",
+        label: "Mint address",
+        type: "pubkey",
+        positional: true,
+        position: 0,
+        required: true,
+      },
+    ],
+    requiresConfirm: true,
+    dangerous: true,
+    page: "reclaim",
   },
   {
     id: "spl-balance",
@@ -949,6 +1492,15 @@ export function commandsForPage(page: string): CatalogCommand[] {
   return CATALOG.filter((c) => c.page === page);
 }
 
+/** Normalize multi-line / space-separated address lists to comma-separated for CLI. */
+function normalizeAddressList(raw: string): string {
+  return raw
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join(",");
+}
+
 export function buildArgsFromFields(
   cmd: CatalogCommand,
   values: Record<string, string | boolean>
@@ -975,8 +1527,13 @@ export function buildArgsFromFields(
     }
     if (v === undefined || v === "" || v === false) continue;
     if (f.flag) {
+      let value = String(v);
+      // --addresses expects comma-separated pubkeys
+      if (f.flag === "--addresses" || f.name === "addresses") {
+        value = normalizeAddressList(value);
+      }
       args.push(f.flag);
-      args.push(String(v));
+      args.push(value);
     }
   }
 

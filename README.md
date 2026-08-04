@@ -6,13 +6,30 @@ A dense workstation-style wrapper around your local tools: `solana`, `solana-key
 
 > **Not an official Solana Foundation product.** Not a wallet. It runs binaries already installed on your machine.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tauri](https://img.shields.io/badge/Tauri-2-orange.svg)
-![Bun](https://img.shields.io/badge/bun-1.x-black.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Tauri](https://img.shields.io/badge/Tauri-2-orange.svg)](https://tauri.app/)
+[![Release](https://img.shields.io/github/v/release/jibrilbashir/solana-cli-gui?include_prereleases)](https://github.com/jibrilbashir/solana-cli-gui/releases)
+
+## Download
+
+Prebuilt **macOS** and **Windows** apps are on **[GitHub Releases](https://github.com/jibrilbashir/solana-cli-gui/releases)**.
+
+| Platform | Asset |
+|----------|--------|
+| macOS Apple Silicon | `.dmg` (`aarch64`) |
+| macOS Intel | `.dmg` (`x86_64`) |
+| Windows | `.msi` / NSIS `.exe` |
+
+You still need the **Solana CLI** on your `PATH` (`solana`, `solana-keygen`, `spl-token`). This app does not bundle those tools.
+
+**macOS (unsigned builds):** open the DMG → drag to Applications. If Gatekeeper blocks it: right-click the app → **Open**.
+
+**Windows (unsigned builds):** run the installer. If SmartScreen appears: **More info** → **Run anyway**.
 
 ## Features
 
-- **Catalog forms** for common CLI workflows (config, wallet, transfer, stake, programs, tokens, cluster, …) with plain-English descriptions
+- **Catalog forms** for common CLI workflows (config, wallet, transfer, stake, programs, tokens, reclaim rent / close accounts, address lookup tables, cluster, …) with plain-English descriptions
+- **Reclaim rent** scan UI (sol-incinerator-style): list empty SPL token accounts and close them via `spl-token gc` / `close`
 - **Console** escape hatch for any allowlisted subcommand
 - **Global overrides**: RPC (`-u`), keypair (`-k`), commitment, config path, JSON / verbose / skip-preflight
 - **Vanity grind** UI for `solana-keygen grind` (streamed output + cancel)
@@ -41,19 +58,29 @@ export PATH="$HOME/.cargo/bin:$PATH"
 ## Quick start
 
 ```bash
-git clone https://github.com/<you>/solana-cli-gui.git
+git clone https://github.com/jibrilbashir/solana-cli-gui.git
 cd solana-cli-gui
 bun install
 bun run tauri:dev
 ```
 
-### Production build
+### Production build (this machine)
 
 ```bash
 bun run tauri:build
 ```
 
-Artifacts land under `src-tauri/target/release/bundle/`.
+Artifacts land under `src-tauri/target/release/bundle/` (e.g. `.dmg` on macOS).
+
+### Publishing a release (maintainers)
+
+1. Bump `version` in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` together.
+2. Commit, then tag and push:
+   ```bash
+   git tag v0.1.0
+   git push origin main --tags
+   ```
+3. GitHub Actions (`.github/workflows/release.yml`) builds macOS + Windows and attaches installers to the Release.
 
 ### Useful scripts
 
@@ -82,6 +109,30 @@ solana-cli-gui/
 ├── bun.lock
 └── LICENSE
 ```
+
+## Configuration
+
+App toolbar settings (RPC, keypair, commitment, flags) persist to:
+
+```text
+~/.config/solana-cli-gui/config.toml
+```
+
+Example:
+
+```toml
+url = "devnet"
+keypair = ""
+commitment = "confirmed"
+solana_config = ""
+ws = ""
+json = false
+verbose = false
+skip_preflight = false
+```
+
+- `solana_config` is the optional path passed as Solana CLI `-C` (usually still a **config.yml** from the Solana CLI).
+- This TOML file is **only** for the GUI; it does not replace `~/.config/solana/cli/config.yml`.
 
 ## Safety model
 

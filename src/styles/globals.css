@@ -173,6 +173,21 @@ textarea:focus-visible {
   color: var(--color-fg-dim);
 }
 
+.field-toolbar {
+  width: auto;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-0);
+  padding: 3px 6px;
+  font-size: 12px;
+  height: 26px;
+  line-height: 1.2;
+}
+.field-toolbar:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
 .panel {
   border: 1px solid var(--color-border);
   background: var(--color-surface-1);

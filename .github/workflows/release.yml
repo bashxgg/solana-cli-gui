@@ -1,0 +1,76 @@
+# Build macOS + Windows installers and attach them to a GitHub Release.
+# Trigger: push a version tag (v0.1.0) or run manually from Actions.
+#
+# Requires: nothing extra for unsigned builds (GITHUB_TOKEN is enough).
+# Optional later: Apple notarization / Windows code signing secrets.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target aarch64-apple-darwin
+            rust_targets: aarch64-apple-darwin
+          - platform: macos-latest
+            args: --target x86_64-apple-darwin
+            rust_targets: x86_64-apple-darwin
+          - platform: windows-latest
+            args: ""
+            rust_targets: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: ${{ matrix.platform }}-${{ matrix.rust_targets || 'host' }}
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build and upload to GitHub Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # __VERSION__ is replaced from tauri.conf.json / package version
+          tagName: v__VERSION__
+          releaseName: "solana cli v__VERSION__"
+          releaseBody: |
+            Desktop GUI for the Solana CLI (Tauri).
+
+            **Requires** `solana`, `solana-keygen`, and `spl-token` installed separately on your machine.
+
+            ### Install notes
+            - **macOS (unsigned):** open the `.dmg`, drag the app to Applications. If Gatekeeper blocks it: right-click → Open.
+            - **Windows (unsigned):** run the installer; SmartScreen may warn — choose More info → Run anyway.
+            - Install Solana CLI: https://docs.solana.com/cli/install-solana-cli-tools
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}

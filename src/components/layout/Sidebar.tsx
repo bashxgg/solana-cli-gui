@@ -6,12 +6,16 @@ const NAV: { id: PageId; label: string; group?: string }[] = [
   { id: "wallet", label: "Wallet", group: "setup" },
   { id: "accounts", label: "Accounts", group: "ops" },
   { id: "transfer", label: "Transfer", group: "ops" },
+  { id: "nonce", label: "Nonce", group: "ops" },
   { id: "stake", label: "Stake", group: "ops" },
   { id: "vote", label: "Validators", group: "ops" },
   { id: "program", label: "Program", group: "ops" },
   { id: "tokens", label: "Tokens", group: "ops" },
+  { id: "wrap", label: "Wrap / unwrap", group: "ops" },
+  { id: "reclaim", label: "Reclaim rent", group: "ops" },
+  { id: "alt", label: "Lookup tables", group: "ops" },
   { id: "cluster", label: "Cluster", group: "ops" },
-  { id: "soltop", label: "soltop", group: "others" },
+  { id: "soltop", label: "Soltop", group: "others" },
   { id: "console", label: "Console", group: "others" },
 ];
 
@@ -26,19 +30,6 @@ export function Sidebar({
 
   return (
     <aside className="flex w-[152px] shrink-0 flex-col border-r border-border bg-surface-0">
-      <div className="flex h-9 items-center gap-2 border-b border-border px-3">
-        <img
-          src="/solana-logo.png"
-          alt=""
-          width={18}
-          height={18}
-          className="h-[18px] w-[18px] shrink-0 object-contain"
-          draggable={false}
-        />
-        <span className="mono text-[12px] font-medium tracking-tight text-fg">
-          solana cli
-        </span>
-      </div>
       <nav className="flex-1 overflow-y-auto py-1">
         <ul className="flex flex-col">
           {NAV.map((item) => {
@@ -67,9 +58,6 @@ export function Sidebar({
           })}
         </ul>
       </nav>
-      <div className="border-t border-border px-3 py-2 mono text-[10px] text-fg-dim">
-        CLI
-      </div>
     </aside>
   );
 }
