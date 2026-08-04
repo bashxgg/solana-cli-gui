@@ -12,7 +12,7 @@ Thanks for helping improve **solana cli**.
 - macOS / Linux / Windows
 
 ```bash
-git clone https://github.com/jibrilbashir/solana-cli-gui.git
+git clone https://github.com/bashxgg/solana-cli-gui.git
 cd solana-cli-gui
 bun install
 bun run tauri:dev

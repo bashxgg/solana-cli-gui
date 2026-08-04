@@ -36,21 +36,7 @@ export function GlobalOverridesBar({
           <option value="finalized">finalized</option>
         </select>
       </Field>
-      <Field label="-C" title="CLI config.yml path">
-        <input
-          className="field-toolbar mono w-[120px]"
-          placeholder="cli config.yml"
-          value={value.configPath}
-          onChange={(e) => onChange({ configPath: e.target.value })}
-        />
-      </Field>
       <div className="ml-auto flex shrink-0 items-center gap-3 text-[11px] text-fg-dim">
-        <Toggle
-          label="json"
-          checked={value.json}
-          onChange={(v) => onChange({ json: v })}
-          title="--output json on next command"
-        />
         <Toggle
           label="verbose"
           checked={value.verbose}

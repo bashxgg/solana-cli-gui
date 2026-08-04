@@ -9,6 +9,7 @@ import { OutputPanel } from "./components/layout/OutputPanel";
 import { TopBar } from "./components/layout/TopBar";
 import { Dashboard } from "./components/pages/Dashboard";
 import { CatalogPage } from "./components/pages/CatalogPage";
+import { ConfigPage } from "./components/pages/Config";
 import { ConsolePage } from "./components/pages/Console";
 import { WalletPage } from "./components/pages/Wallet";
 import { SoltopPage } from "./components/pages/Soltop";
@@ -87,6 +88,8 @@ function Shell() {
               loading={loadingStatus}
               cluster={cluster}
             />
+          ) : page === "config" ? (
+            <ConfigPage />
           ) : page === "console" ? (
             <ConsolePage />
           ) : page === "wallet" ? (

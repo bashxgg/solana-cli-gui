@@ -8,11 +8,11 @@ A dense workstation-style wrapper around your local tools: `solana`, `solana-key
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Tauri](https://img.shields.io/badge/Tauri-2-orange.svg)](https://tauri.app/)
-[![Release](https://img.shields.io/github/v/release/jibrilbashir/solana-cli-gui?include_prereleases)](https://github.com/jibrilbashir/solana-cli-gui/releases)
+[![Release](https://img.shields.io/github/v/release/bashxgg/solana-cli-gui?include_prereleases)](https://github.com/bashxgg/solana-cli-gui/releases)
 
 ## Download
 
-Prebuilt **macOS** and **Windows** apps are on **[GitHub Releases](https://github.com/jibrilbashir/solana-cli-gui/releases)**.
+Prebuilt **macOS** and **Windows** apps are on **[GitHub Releases](https://github.com/bashxgg/solana-cli-gui/releases)**.
 
 | Platform | Asset |
 |----------|--------|
@@ -58,7 +58,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 ## Quick start
 
 ```bash
-git clone https://github.com/jibrilbashir/solana-cli-gui.git
+git clone https://github.com/bashxgg/solana-cli-gui.git
 cd solana-cli-gui
 bun install
 bun run tauri:dev

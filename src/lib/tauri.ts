@@ -86,3 +86,14 @@ export async function convertBase58ToJson(base58Key: string): Promise<KeyConvert
 export async function convertJsonToBase58(jsonArray: string): Promise<KeyConvertResult> {
   return invoke<KeyConvertResult>("convert_json_to_base58", { jsonArray });
 }
+
+export interface PathValidation {
+  valid: boolean;
+  message: string;
+  resolvedPath: string;
+}
+
+/** Empty path = default (valid). Non-empty must exist and look like Solana config.yml. */
+export async function validateCliConfigPath(path: string): Promise<PathValidation> {
+  return invoke<PathValidation>("validate_cli_config_path_cmd", { path });
+}

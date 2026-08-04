@@ -2,7 +2,10 @@ mod app_config;
 mod cli;
 mod keypair_convert;
 
-use app_config::{load_app_config, save_app_config, AppConfigDto, AppConfigResult};
+use app_config::{
+    load_app_config, save_app_config, validate_cli_config_path, AppConfigDto, AppConfigResult,
+    PathValidation,
+};
 use cli::{
     allowed_binaries, get_status, is_stream_running, launch_install, launch_soltop, probe_soltop,
     run_cli, start_cli_stream, stop_cli_stream, AppStatus, BinaryInfo, CommandResult,
@@ -93,6 +96,11 @@ fn convert_json_to_base58(json_array: String) -> Result<KeyConvertResult, String
     json_to_base58(&json_array)
 }
 
+#[tauri::command]
+fn validate_cli_config_path_cmd(path: String) -> PathValidation {
+    validate_cli_config_path(&path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let stream_handle = Arc::new(StreamHandle::new());
@@ -113,7 +121,8 @@ pub fn run() {
             load_gui_config,
             save_gui_config,
             convert_base58_to_json,
-            convert_json_to_base58
+            convert_json_to_base58,
+            validate_cli_config_path_cmd
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
