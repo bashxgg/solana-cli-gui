@@ -20,13 +20,28 @@ Prebuilt **macOS Apple Silicon** apps are on **[GitHub Releases](https://github.
 
 You still need the **Solana CLI** on your `PATH` (`solana`, `solana-keygen`, `spl-token`). This app does not bundle those tools.
 
-**macOS (unsigned builds):** open the DMG → drag to Applications. macOS often shows *“solana cli is damaged”* for **unsigned** apps from the internet — the file is fine. Fix in Terminal:
+### Recommended install (avoids “app is damaged”)
+
+Unsigned builds from the browser get a Gatekeeper quarantine flag. Use the installer script instead of double‑clicking the DMG from Chrome:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bashxgg/solana-cli-gui/main/scripts/install-macos.sh | bash
+```
+
+That downloads the latest arm64 DMG, installs to `/Applications`, clears quarantine, ad‑hoc re-signs, and opens the app.
+
+### Manual install
+
+1. Download the `.dmg` from Releases → drag **solana cli** to Applications.
+2. If macOS says *“solana cli is damaged”*, run:
 
 ```bash
 xattr -cr "/Applications/solana cli.app"
+codesign --force --deep --sign - "/Applications/solana cli.app"
+open "/Applications/solana cli.app"
 ```
 
-Then open the app normally (or right-click → **Open**). Proper fix later is Apple code signing + notarization.
+(The app is not corrupt — this is normal for **unsigned** downloads. Apple Developer ID + notarization removes the dialog entirely for paid signing.)
 
 ## Features
 
