@@ -1,9 +1,17 @@
-# Build macOS Apple Silicon installer and attach to a GitHub Release.
-# Trigger: push a version tag (v0.1.0) or run manually from Actions.
+# Build signed + notarized macOS Apple Silicon DMG for GitHub Releases.
 #
-# Requires: nothing extra for unsigned builds (GITHUB_TOKEN is enough).
-# Optional later: Apple notarization secrets.
-# Platform: macOS Apple Silicon (aarch64) only — no Intel / Windows / Linux.
+# Without Apple Developer secrets, Gatekeeper will still show “app is damaged”
+# for browser downloads. Ad-hoc signing is NOT enough for internet distribution.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   APPLE_CERTIFICATE          base64 of Developer ID Application .p12
+#   APPLE_CERTIFICATE_PASSWORD password for that .p12
+#   APPLE_SIGNING_IDENTITY     e.g. "Developer ID Application: Your Name (TEAMID)"
+#   APPLE_ID                   Apple ID email
+#   APPLE_PASSWORD             app-specific password (appleid.apple.com)
+#   APPLE_TEAM_ID              10-char Team ID
+#
+# Setup guide: docs/MACOS_SIGNING.md
 
 name: Release
 
@@ -21,6 +29,28 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Require Apple signing secrets
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          missing=0
+          for v in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing secret: $v — see docs/MACOS_SIGNING.md"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Cannot ship a Gatekeeper-clean DMG without Apple Developer ID + notarization."
+            exit 1
+          fi
+          echo "All Apple signing secrets present."
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -41,29 +71,29 @@ jobs:
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build and upload to GitHub Release
+      - name: Build, sign, notarize, upload Release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
-          # __VERSION__ is replaced from tauri.conf.json / package version
           tagName: v__VERSION__
           releaseName: "solana cli v__VERSION__"
           releaseBody: |
-            Desktop GUI for the Solana CLI (Tauri) — **macOS Apple Silicon only**.
+            Desktop GUI for the Solana CLI (Tauri) — **macOS Apple Silicon**.
 
-            **Requires** `solana`, `solana-keygen`, and `spl-token` installed separately.
+            **Requires** `solana`, `solana-keygen`, and `spl-token` on your PATH.
 
-            ### Install (recommended — avoids “app is damaged”)
-            ```bash
-            curl -fsSL https://raw.githubusercontent.com/bashxgg/solana-cli-gui/main/scripts/install-macos.sh | bash
-            ```
+            ### Install
+            1. Download `solana.cli_*_aarch64.dmg`
+            2. Open → drag **solana cli** to Applications → open
 
-            ### Manual
-            - Download the arm64 `.dmg`, drag to Applications.
-            - If Gatekeeper says **damaged**:
-              `xattr -cr "/Applications/solana cli.app" && codesign --force --deep --sign - "/Applications/solana cli.app"`
-            - Solana CLI: https://docs.solana.com/cli/install-solana-cli-tools
+            Signed & notarized with Apple Developer ID (no “damaged” dialog).
           releaseDraft: false
           prerelease: false
           args: --target aarch64-apple-darwin
