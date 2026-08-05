@@ -1,8 +1,9 @@
-# Build macOS + Windows installers and attach them to a GitHub Release.
+# Build macOS installers and attach them to a GitHub Release.
 # Trigger: push a version tag (v0.1.0) or run manually from Actions.
 #
 # Requires: nothing extra for unsigned builds (GITHUB_TOKEN is enough).
-# Optional later: Apple notarization / Windows code signing secrets.
+# Optional later: Apple notarization secrets.
+# Platform: macOS only (no Windows / Linux release builds).
 
 name: Release
 
@@ -27,9 +28,6 @@ jobs:
           - platform: macos-latest
             args: --target x86_64-apple-darwin
             rust_targets: x86_64-apple-darwin
-          - platform: windows-latest
-            args: ""
-            rust_targets: ""
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -49,7 +47,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-          shared-key: ${{ matrix.platform }}-${{ matrix.rust_targets || 'host' }}
+          shared-key: ${{ matrix.platform }}-${{ matrix.rust_targets }}
 
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile
@@ -63,14 +61,14 @@ jobs:
           tagName: v__VERSION__
           releaseName: "solana cli v__VERSION__"
           releaseBody: |
-            Desktop GUI for the Solana CLI (Tauri).
+            Desktop GUI for the Solana CLI (Tauri) — **macOS only**.
 
             **Requires** `solana`, `solana-keygen`, and `spl-token` installed separately on your machine.
 
             ### Install notes
-            - **macOS (unsigned):** open the `.dmg`, drag to Applications. If macOS says the app is "damaged", run:
+            - Open the `.dmg` (arm64 or x64), drag to Applications.
+            - If macOS says the app is "damaged", run:
               `xattr -cr "/Applications/solana cli.app"` then open again.
-            - **Windows (unsigned):** run the installer; SmartScreen may warn — More info → Run anyway.
             - Install Solana CLI: https://docs.solana.com/cli/install-solana-cli-tools
           releaseDraft: false
           prerelease: false
