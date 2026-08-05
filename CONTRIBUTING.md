@@ -9,7 +9,7 @@ Thanks for helping improve **solana cli**.
 - [Bun](https://bun.sh/) 1.1+
 - [Rust](https://rustup.rs/) stable
 - [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools) on `PATH` (optional but needed for most features)
-- macOS (supported platform for releases; other OSes are not targeted)
+- macOS Apple Silicon (release builds are arm64-only; Intel Macs not targeted)
 
 ```bash
 git clone https://github.com/bashxgg/solana-cli-gui.git

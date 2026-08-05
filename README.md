@@ -12,12 +12,11 @@ A dense workstation-style wrapper around your local tools: `solana`, `solana-key
 
 ## Download
 
-Prebuilt **macOS** apps are on **[GitHub Releases](https://github.com/bashxgg/solana-cli-gui/releases)** (macOS only — no Windows builds).
+Prebuilt **macOS Apple Silicon** apps are on **[GitHub Releases](https://github.com/bashxgg/solana-cli-gui/releases)** (arm64 only — no Intel Mac / Windows builds).
 
 | Platform | Asset |
 |----------|--------|
-| macOS Apple Silicon | `.dmg` (`aarch64`) |
-| macOS Intel | `.dmg` (`x86_64`) |
+| macOS Apple Silicon (M1+) | `.dmg` (`aarch64`) |
 
 You still need the **Solana CLI** on your `PATH` (`solana`, `solana-keygen`, `spl-token`). This app does not bundle those tools.
 
@@ -48,7 +47,7 @@ Then open the app normally (or right-click → **Open**). Proper fix later is Ap
 | [Bun](https://bun.sh/) 1.1+ | Frontend package manager / scripts |
 | [Rust](https://rustup.rs/) stable | Tauri backend |
 | [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools) | `solana`, `solana-keygen`, `spl-token` on `PATH` |
-| OS | **macOS** (primary; release builds are macOS-only) |
+| OS | **macOS Apple Silicon** (M1/M2/M3/…); release builds are arm64-only |
 
 Optional: [soltop](https://github.com/soltop-sh/soltop-oss) for the program-monitor TUI integration.
 
@@ -83,7 +82,7 @@ Artifacts land under `src-tauri/target/release/bundle/` (e.g. `.dmg` on macOS).
    git tag v0.1.0
    git push origin main --tags
    ```
-3. GitHub Actions (`.github/workflows/release.yml`) builds macOS DMGs (arm64 + Intel) and attaches them to the Release.
+3. GitHub Actions (`.github/workflows/release.yml`) builds the macOS arm64 DMG and attaches it to the Release.
 
 ### Useful scripts
 
