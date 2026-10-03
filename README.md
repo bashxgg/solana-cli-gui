@@ -80,14 +80,7 @@ bun run tauri:build
 
 Artifacts land under `src-tauri/target/release/bundle/` (e.g. `.dmg` on macOS).
 
-### Publishing a release (maintainers)
 
-1. Bump `version` in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` together.
-2. Commit, then tag and push:
-   ```bash
-   git tag v0.1.0
-   git push origin main --tags
-   ```
 3. GitHub Actions (`.github/workflows/release.yml`) builds the macOS arm64 DMG and attaches it to the Release.
 
 ### Useful scripts
