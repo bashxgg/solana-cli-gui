@@ -72,7 +72,7 @@ bun install
 bun run tauri:dev
 ```
 
-### Production build (this machine)
+### Production build
 
 ```bash
 bun run tauri:build
